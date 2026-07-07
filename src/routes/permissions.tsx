@@ -8,6 +8,7 @@ import {
   Save,
   Shield,
   Database,
+  Boxes,
   Folder,
   FileText,
   Check,
