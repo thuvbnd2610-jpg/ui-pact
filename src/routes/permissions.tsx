@@ -133,6 +133,13 @@ const FUNCTION_TREE: FunctionNode[] = [
 ];
 
 const ACTIONS = ["query", "create", "update", "delete"] as const;
+type Action = (typeof ACTIONS)[number];
+const ACTION_LABEL: Record<Action, string> = {
+  query: "Truy vấn",
+  create: "Thêm",
+  update: "Sửa",
+  delete: "Xóa",
+};
 
 type DataPerm = "hidden" | "readonly" | "editable";
 
@@ -153,13 +160,6 @@ const DATA_FIELDS: {
   { object: "PROJECT", code: "FLD_PRJ_RESOURCE_ACTUAL", name: "Nguồn lực - Thực tế (MD)", type: "N" },
   { object: "PROJECT", code: "FLD_PRJ_RESOURCES", name: "Nhân sự dự án", type: "C" },
 ];
-type Action = (typeof ACTIONS)[number];
-const ACTION_LABEL: Record<Action, string> = {
-  query: "Truy vấn",
-  create: "Thêm",
-  update: "Sửa",
-  delete: "Xóa",
-};
 
 type PermState = Record<string, Record<Action, boolean>>;
 
@@ -517,24 +517,102 @@ function PermissionsPage() {
 
           {/* DATA PERMISSIONS */}
           <TabsContent value="data" className="mt-4">
-            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-              <div className="border-b bg-muted/40 px-5 py-3 text-xs text-muted-foreground">
-                Chọn <span className="font-medium text-foreground">phạm vi dữ liệu</span>{" "}
-                mà nhóm người dùng được phép truy cập với từng chức năng.
+            <div className="overflow-hidden rounded-xl border-2 bg-card shadow-sm">
+              <div className="flex items-center border-b-2 bg-muted/40 px-5 py-3 text-xs font-medium text-muted-foreground">
+                <span className="w-28">Object</span>
+                <span className="flex-1">Mã trường</span>
+                <span className="flex-1">Tên trường</span>
+                <span className="w-14 text-center">Kiểu</span>
+                <span className="w-20 text-center">Ẩn</span>
+                <span className="w-24 text-center">Chỉ xem</span>
+                <span className="w-24 text-center">Cho sửa</span>
               </div>
-              <ul className="divide-y">
-                {FUNCTION_TREE.filter(matchesSearch).map((node) => (
-                  <DataTreeRow
-                    key={node.code}
-                    node={node}
-                    depth={0}
-                    expanded={expanded}
-                    onToggle={toggleExpanded}
-                    scope={dataScope}
-                    setScope={(c, v) => setDataScope((s) => ({ ...s, [c]: v }))}
-                    matchesSearch={matchesSearch}
-                  />
-                ))}
+              <ul className="divide-y-2">
+                {DATA_FIELDS.filter((f) => {
+                  if (!search.trim()) return true;
+                  const q = search.toLowerCase();
+                  return (
+                    f.object.toLowerCase().includes(q) ||
+                    f.code.toLowerCase().includes(q) ||
+                    f.name.toLowerCase().includes(q)
+                  );
+                }).map((f) => {
+                  const val = dataPerms[f.code] ?? "hidden";
+                  return (
+                    <li
+                      key={f.code}
+                      className="flex items-center px-5 py-2.5 transition-colors hover:bg-accent/40"
+                    >
+                      <span className="w-28 truncate text-sm font-medium text-blue-600">
+                        {f.object}
+                      </span>
+                      <span className="flex-1 truncate font-mono text-sm text-foreground/90">
+                        {f.code}
+                      </span>
+                      <span className="flex-1 truncate text-sm text-foreground/90">
+                        {f.name}
+                      </span>
+                      <span className="w-14 text-center text-sm text-muted-foreground">
+                        {f.type}
+                      </span>
+                      <span className="flex w-20 justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setDataPerms((p) => ({ ...p, [f.code]: "hidden" }))}
+                          className={cn(
+                            "flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors",
+                            val === "hidden"
+                              ? "border-primary bg-primary"
+                              : "border-input bg-background hover:border-primary/60",
+                          )}
+                          aria-label={`Ẩn - ${f.name}`}
+                        >
+                          {val === "hidden" && (
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          )}
+                        </button>
+                      </span>
+                      <span className="flex w-24 justify-center">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDataPerms((p) => ({ ...p, [f.code]: "readonly" }))
+                          }
+                          className={cn(
+                            "flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors",
+                            val === "readonly"
+                              ? "border-primary bg-primary"
+                              : "border-input bg-background hover:border-primary/60",
+                          )}
+                          aria-label={`Chỉ xem - ${f.name}`}
+                        >
+                          {val === "readonly" && (
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          )}
+                        </button>
+                      </span>
+                      <span className="flex w-24 justify-center">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDataPerms((p) => ({ ...p, [f.code]: "editable" }))
+                          }
+                          className={cn(
+                            "flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors",
+                            val === "editable"
+                              ? "border-primary bg-primary"
+                              : "border-input bg-background hover:border-primary/60",
+                          )}
+                          aria-label={`Cho sửa - ${f.name}`}
+                        >
+                          {val === "editable" && (
+                            <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                          )}
+                        </button>
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </TabsContent>
@@ -713,113 +791,6 @@ function TreeRow(props: {
         <ul className="border-l-2 border-dashed border-border/70 ml-[38px]">
           {node.children!.filter(matchesSearch).map((child) => (
             <TreeRow key={child.code} {...props} node={child} depth={depth + 1} />
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-}
-
-/* ---------- Data scope tree row ---------- */
-
-function DataTreeRow(props: {
-  node: FunctionNode;
-  depth: number;
-  expanded: Record<string, boolean>;
-  onToggle: (c: string) => void;
-  scope: Record<string, string>;
-  setScope: (code: string, value: string) => void;
-  matchesSearch: (n: FunctionNode) => boolean;
-}) {
-  const { node, depth, expanded, onToggle, scope, setScope, matchesSearch } = props;
-  const hasChildren = !!node.children?.length;
-  const isOpen = expanded[node.code] ?? true;
-  const isGroup = hasChildren;
-  const value = scope[node.code] ?? "";
-
-  return (
-    <li>
-      <div
-        className={cn(
-          "flex items-center gap-3 px-5 py-2.5",
-          isGroup && depth === 0 && "bg-amber-50/60",
-          isGroup && depth > 0 && "bg-muted/30",
-        )}
-        style={{ paddingLeft: 20 + depth * 24 }}
-      >
-        <button
-          type="button"
-          onClick={() => hasChildren && onToggle(node.code)}
-          className={cn(
-            "flex h-5 w-5 items-center justify-center rounded text-muted-foreground",
-            hasChildren ? "hover:bg-background" : "opacity-0",
-          )}
-        >
-          {hasChildren ? (
-            isOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )
-          ) : null}
-        </button>
-
-        {depth === 0 ? (
-          <Boxes className="h-4 w-4 shrink-0 text-amber-600" />
-        ) : depth === 1 ? (
-          <Folder className="h-4 w-4 shrink-0 text-amber-500" />
-        ) : (
-          <FileText className="h-4 w-4 shrink-0 text-sky-600" />
-        )}
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "truncate",
-                isGroup ? "font-semibold" : "text-foreground/90",
-              )}
-            >
-              {node.name}
-            </span>
-            <Badge
-              variant="outline"
-              className="h-5 px-1.5 font-mono text-[10px] text-muted-foreground"
-            >
-              {node.code}
-            </Badge>
-          </div>
-        </div>
-
-        <div className="w-64 pr-4">
-          {isGroup ? (
-            <span className="text-xs text-muted-foreground">
-              — Chọn phạm vi ở chức năng con —
-            </span>
-          ) : (
-            <Select value={value} onValueChange={(v) => setScope(node.code, v)}>
-              <SelectTrigger className="h-8">
-                <SelectValue placeholder="Chọn phạm vi dữ liệu" />
-              </SelectTrigger>
-              <SelectContent>
-                {DATA_SCOPES.map((s) => (
-                  <SelectItem key={s.code} value={s.code}>
-                    <div className="flex flex-col">
-                      <span className="text-sm">{s.name}</span>
-                      <span className="text-xs text-muted-foreground">{s.desc}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-      </div>
-
-      {hasChildren && isOpen && (
-        <ul className="border-l-2 border-dashed border-border/70 ml-[38px]">
-          {node.children!.filter(matchesSearch).map((child) => (
-            <DataTreeRow key={child.code} {...props} node={child} depth={depth + 1} />
           ))}
         </ul>
       )}
