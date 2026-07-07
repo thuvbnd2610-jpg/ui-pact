@@ -423,8 +423,32 @@ function PermissionsPage() {
                 </div>
                 <div className="hidden items-center gap-6 pr-4 text-xs font-medium text-muted-foreground md:flex">
                   <div className="flex w-14 flex-col items-center gap-1">
-                    <span className="text-[11px] text-muted-foreground/80">Cả dòng</span>
-                    <span className="text-muted-foreground/40">·</span>
+                    <span className="text-[11px] text-muted-foreground/80">ALL</span>
+                    {(() => {
+                      const ast = allState();
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => setAllPerm(ast !== "all")}
+                          className={cn(
+                            "flex h-5 w-5 items-center justify-center rounded border transition-colors",
+                            ast === "all"
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : ast === "some"
+                                ? "border-primary bg-primary/20 text-primary"
+                                : "border-input bg-background hover:border-primary/60",
+                          )}
+                          title="Chọn tất cả quyền"
+                          aria-label="Chọn tất cả quyền"
+                        >
+                          {ast === "all" ? (
+                            <Check className="h-3.5 w-3.5" />
+                          ) : ast === "some" ? (
+                            <Minus className="h-3.5 w-3.5" />
+                          ) : null}
+                        </button>
+                      );
+                    })()}
                   </div>
                   {ACTIONS.map((a) => {
                     const st = columnState(a);
