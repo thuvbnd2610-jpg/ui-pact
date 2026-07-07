@@ -460,13 +460,10 @@ function TreeRow(props: {
         </button>
 
         {/* Icon */}
-        {isGroup ? (
-          <Folder
-            className={cn(
-              "h-4 w-4 shrink-0",
-              depth === 0 ? "text-amber-600" : "text-amber-500/80",
-            )}
-          />
+        {depth === 0 ? (
+          <Boxes className="h-4 w-4 shrink-0 text-amber-600" />
+        ) : depth === 1 ? (
+          <Folder className="h-4 w-4 shrink-0 text-amber-500" />
         ) : (
           <FileText className="h-4 w-4 shrink-0 text-sky-600" />
         )}
