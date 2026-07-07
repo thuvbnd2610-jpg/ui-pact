@@ -229,6 +229,57 @@ function PermissionsPage() {
     return n.children?.some(matchesSearch) ?? false;
   };
 
+  const visibleTree = useMemo(
+    () => FUNCTION_TREE.filter(matchesSearch),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [search],
+  );
+  const visibleCodes = useMemo(() => flattenCodes(visibleTree), [visibleTree]);
+
+  const columnState = (a: Action): "all" | "some" | "none" => {
+    if (visibleCodes.length === 0) return "none";
+    const on = visibleCodes.filter((c) => perms[c]?.[a]).length;
+    if (on === 0) return "none";
+    if (on === visibleCodes.length) return "all";
+    return "some";
+  };
+
+  const setColumnPerm = (a: Action, value: boolean) => {
+    setPerms((p) => {
+      const next = { ...p };
+      visibleCodes.forEach((c) => {
+        next[c] = { ...next[c], [a]: value };
+      });
+      return next;
+    });
+  };
+
+  const rowState = (node: FunctionNode): "all" | "some" | "none" => {
+    const codes = [node.code, ...getDescendants(node)];
+    let on = 0;
+    let total = 0;
+    codes.forEach((c) => {
+      ACTIONS.forEach((a) => {
+        total += 1;
+        if (perms[c]?.[a]) on += 1;
+      });
+    });
+    if (on === 0) return "none";
+    if (on === total) return "all";
+    return "some";
+  };
+
+  const setRowPerm = (node: FunctionNode, value: boolean) => {
+    const codes = [node.code, ...getDescendants(node)];
+    setPerms((p) => {
+      const next = { ...p };
+      codes.forEach((c) => {
+        next[c] = { query: value, create: value, update: value, delete: value };
+      });
+      return next;
+    });
+  };
+
   const reset = () => {
     setPerms(initialPerms);
     setDataScope({});
