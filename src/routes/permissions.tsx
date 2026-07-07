@@ -205,7 +205,7 @@ function PermissionsPage() {
   }, []);
 
   const [perms, setPerms] = useState<PermState>(initialPerms);
-  const [dataScope, setDataScope] = useState<Record<string, string>>({});
+  const [dataPerms, setDataPerms] = useState<Record<string, DataPerm>>({});
 
   const toggleExpanded = (code: string) =>
     setExpanded((e) => ({ ...e, [code]: !e[code] }));
