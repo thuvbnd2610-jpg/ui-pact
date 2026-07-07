@@ -407,9 +407,9 @@ function PermissionsPage() {
 
           {/* FUNCTION PERMISSIONS */}
           <TabsContent value="function" className="mt-4">
-            <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+            <div className="overflow-hidden rounded-xl border-2 bg-card shadow-sm">
               {/* Legend header */}
-              <div className="flex items-center justify-between border-b bg-muted/40 px-5 py-3">
+              <div className="flex items-center justify-between border-b-2 bg-muted/40 px-5 py-3">
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Boxes className="h-3.5 w-3.5 text-amber-600" /> Module chính
@@ -481,7 +481,7 @@ function PermissionsPage() {
                 </div>
               </div>
 
-              <ul className="divide-y">
+              <ul className="divide-y-2">
                 {visibleTree.map((node) => (
                   <TreeRow
                     key={node.code}
