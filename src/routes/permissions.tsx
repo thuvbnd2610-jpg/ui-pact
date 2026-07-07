@@ -321,7 +321,7 @@ function PermissionsPage() {
 
   const reset = () => {
     setPerms(initialPerms);
-    setDataScope({});
+    setDataPerms({});
   };
 
   return (
