@@ -492,6 +492,8 @@ function TreeRow(props: {
   setPerm: (c: string, a: Action, v: boolean) => void;
   setBranchPerm: (n: FunctionNode, a: Action, v: boolean) => void;
   branchState: (n: FunctionNode, a: Action) => "all" | "some" | "none";
+  rowState: (n: FunctionNode) => "all" | "some" | "none";
+  setRowPerm: (n: FunctionNode, v: boolean) => void;
   matchesSearch: (n: FunctionNode) => boolean;
 }) {
   const {
@@ -503,6 +505,8 @@ function TreeRow(props: {
     setPerm,
     setBranchPerm,
     branchState,
+    rowState,
+    setRowPerm,
     matchesSearch,
   } = props;
   const hasChildren = !!node.children?.length;
