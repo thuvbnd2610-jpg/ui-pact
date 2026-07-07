@@ -631,7 +631,7 @@ function TreeRow(props: {
           {(() => {
             const rst = rowState(node);
             return (
-              <div className="flex w-14 items-center justify-center border-r pr-3">
+              <div className="flex w-14 items-center justify-center border-r-2 border-r-foreground/25 pr-3">
                 <button
                   type="button"
                   onClick={() => setRowPerm(node, rst !== "all")}
