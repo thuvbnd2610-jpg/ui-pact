@@ -335,7 +335,10 @@ function PermissionsPage() {
               <div className="flex items-center justify-between border-b bg-muted/40 px-5 py-3">
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <Folder className="h-3.5 w-3.5 text-amber-600" /> Nhóm chức năng
+                    <Boxes className="h-3.5 w-3.5 text-amber-600" /> Module chính
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Folder className="h-3.5 w-3.5 text-amber-500" /> Nhóm chức năng
                   </span>
                   <span className="flex items-center gap-1.5">
                     <FileText className="h-3.5 w-3.5 text-sky-600" /> Chức năng chi tiết
