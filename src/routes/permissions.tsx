@@ -578,6 +578,33 @@ function TreeRow(props: {
 
         {/* Actions */}
         <div className="flex items-center gap-6 pr-4">
+          {(() => {
+            const rst = rowState(node);
+            return (
+              <div className="flex w-14 items-center justify-center border-r pr-3">
+                <button
+                  type="button"
+                  onClick={() => setRowPerm(node, rst !== "all")}
+                  className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded border transition-colors",
+                    rst === "all"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : rst === "some"
+                        ? "border-primary bg-primary/20 text-primary"
+                        : "border-input bg-background hover:border-primary/60",
+                  )}
+                  title={`Chọn tất cả quyền cho ${node.name}`}
+                  aria-label={`Chọn tất cả quyền cho ${node.name}`}
+                >
+                  {rst === "all" ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : rst === "some" ? (
+                    <Minus className="h-3.5 w-3.5" />
+                  ) : null}
+                </button>
+              </div>
+            );
+          })()}
           {ACTIONS.map((a) => {
             if (isGroup) {
               const st = branchState(node, a);
