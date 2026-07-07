@@ -422,7 +422,7 @@ function PermissionsPage() {
                   </span>
                 </div>
                 <div className="hidden items-center gap-6 pr-4 text-xs font-medium text-muted-foreground md:flex">
-                  <div className="flex w-14 flex-col items-center gap-1">
+                  <div className="flex w-14 flex-col items-center gap-1 border-r-2 border-r-foreground/25 pr-3">
                     <span className="text-[11px] text-muted-foreground/80">ALL</span>
                     {(() => {
                       const ast = allState();
