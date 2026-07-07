@@ -395,17 +395,44 @@ function PermissionsPage() {
                     <FileText className="h-3.5 w-3.5 text-sky-600" /> Chức năng chi tiết
                   </span>
                 </div>
-                <div className="hidden gap-6 pr-4 text-xs font-medium text-muted-foreground md:flex">
-                  {ACTIONS.map((a) => (
-                    <span key={a} className="w-14 text-center">
-                      {ACTION_LABEL[a]}
-                    </span>
-                  ))}
+                <div className="hidden items-center gap-6 pr-4 text-xs font-medium text-muted-foreground md:flex">
+                  <div className="flex w-14 flex-col items-center gap-1">
+                    <span className="text-[11px] text-muted-foreground/80">Cả dòng</span>
+                    <span className="text-muted-foreground/40">·</span>
+                  </div>
+                  {ACTIONS.map((a) => {
+                    const st = columnState(a);
+                    return (
+                      <div key={a} className="flex w-14 flex-col items-center gap-1">
+                        <span>{ACTION_LABEL[a]}</span>
+                        <button
+                          type="button"
+                          onClick={() => setColumnPerm(a, st !== "all")}
+                          className={cn(
+                            "flex h-5 w-5 items-center justify-center rounded border transition-colors",
+                            st === "all"
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : st === "some"
+                                ? "border-primary bg-primary/20 text-primary"
+                                : "border-input bg-background hover:border-primary/60",
+                          )}
+                          title={`Chọn tất cả cột ${ACTION_LABEL[a]}`}
+                          aria-label={`Chọn tất cả cột ${ACTION_LABEL[a]}`}
+                        >
+                          {st === "all" ? (
+                            <Check className="h-3.5 w-3.5" />
+                          ) : st === "some" ? (
+                            <Minus className="h-3.5 w-3.5" />
+                          ) : null}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               <ul className="divide-y">
-                {FUNCTION_TREE.filter(matchesSearch).map((node) => (
+                {visibleTree.map((node) => (
                   <TreeRow
                     key={node.code}
                     node={node}
@@ -416,6 +443,8 @@ function PermissionsPage() {
                     setPerm={setPerm}
                     setBranchPerm={setBranchPerm}
                     branchState={branchState}
+                    rowState={rowState}
+                    setRowPerm={setRowPerm}
                     matchesSearch={matchesSearch}
                   />
                 ))}
