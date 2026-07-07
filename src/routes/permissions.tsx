@@ -132,14 +132,27 @@ const FUNCTION_TREE: FunctionNode[] = [
   },
 ];
 
-const DATA_SCOPES = [
-  { code: "ALL", name: "Toàn bộ dữ liệu", desc: "Xem và thao tác trên toàn bộ dữ liệu hệ thống" },
-  { code: "DEPT", name: "Phòng ban", desc: "Giới hạn theo phòng ban được gán" },
-  { code: "TEAM", name: "Nhóm/Team", desc: "Chỉ dữ liệu trong nhóm làm việc" },
-  { code: "SELF", name: "Cá nhân", desc: "Chỉ dữ liệu do chính người dùng tạo" },
-];
-
 const ACTIONS = ["query", "create", "update", "delete"] as const;
+
+type DataPerm = "hidden" | "readonly" | "editable";
+
+const DATA_FIELDS: {
+  object: string;
+  code: string;
+  name: string;
+  type: string;
+}[] = [
+  { object: "PROJECT", code: "FLD_PRJ_PRIORITY", name: "Độ ưu tiên", type: "C" },
+  { object: "PROJECT", code: "FLD_PRJ_NOTE", name: "Ghi chú", type: "C" },
+  { object: "PROJECT", code: "FLD_PRJ_TYPE", name: "Loại dự án", type: "C" },
+  { object: "PROJECT", code: "FLD_PRJ_MILESTONES", name: "Milestone dự án", type: "C" },
+  { object: "PROJECT", code: "FLD_PRJ_GOLIVE", name: "Ngày go-live dự kiến", type: "D" },
+  { object: "PROJECT", code: "FLD_PRJ_BUDGET_PLAN", name: "Ngân sách - Kế hoạch (VND)", type: "N" },
+  { object: "PROJECT", code: "FLD_PRJ_BUDGET_ACTUAL", name: "Ngân sách - Thực tế (VND)", type: "N" },
+  { object: "PROJECT", code: "FLD_PRJ_RESOURCE_PLAN", name: "Nguồn lực - Kế hoạch (MD)", type: "N" },
+  { object: "PROJECT", code: "FLD_PRJ_RESOURCE_ACTUAL", name: "Nguồn lực - Thực tế (MD)", type: "N" },
+  { object: "PROJECT", code: "FLD_PRJ_RESOURCES", name: "Nhân sự dự án", type: "C" },
+];
 type Action = (typeof ACTIONS)[number];
 const ACTION_LABEL: Record<Action, string> = {
   query: "Truy vấn",
