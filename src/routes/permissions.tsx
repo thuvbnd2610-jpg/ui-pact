@@ -481,7 +481,7 @@ function PermissionsPage() {
                 </div>
               </div>
 
-              <ul className="divide-y">
+              <ul className="divide-y-2">
                 {visibleTree.map((node) => (
                   <TreeRow
                     key={node.code}
