@@ -8,6 +8,7 @@ import {
   Save,
   Shield,
   Database,
+  Boxes,
   Folder,
   FileText,
   Check,
@@ -334,7 +335,10 @@ function PermissionsPage() {
               <div className="flex items-center justify-between border-b bg-muted/40 px-5 py-3">
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <Folder className="h-3.5 w-3.5 text-amber-600" /> Nhóm chức năng
+                    <Boxes className="h-3.5 w-3.5 text-amber-600" /> Module chính
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Folder className="h-3.5 w-3.5 text-amber-500" /> Nhóm chức năng
                   </span>
                   <span className="flex items-center gap-1.5">
                     <FileText className="h-3.5 w-3.5 text-sky-600" /> Chức năng chi tiết
@@ -456,13 +460,10 @@ function TreeRow(props: {
         </button>
 
         {/* Icon */}
-        {isGroup ? (
-          <Folder
-            className={cn(
-              "h-4 w-4 shrink-0",
-              depth === 0 ? "text-amber-600" : "text-amber-500/80",
-            )}
-          />
+        {depth === 0 ? (
+          <Boxes className="h-4 w-4 shrink-0 text-amber-600" />
+        ) : depth === 1 ? (
+          <Folder className="h-4 w-4 shrink-0 text-amber-500" />
         ) : (
           <FileText className="h-4 w-4 shrink-0 text-sky-600" />
         )}
@@ -589,13 +590,10 @@ function DataTreeRow(props: {
           ) : null}
         </button>
 
-        {isGroup ? (
-          <Folder
-            className={cn(
-              "h-4 w-4 shrink-0",
-              depth === 0 ? "text-amber-600" : "text-amber-500/80",
-            )}
-          />
+        {depth === 0 ? (
+          <Boxes className="h-4 w-4 shrink-0 text-amber-600" />
+        ) : depth === 1 ? (
+          <Folder className="h-4 w-4 shrink-0 text-amber-500" />
         ) : (
           <FileText className="h-4 w-4 shrink-0 text-sky-600" />
         )}
