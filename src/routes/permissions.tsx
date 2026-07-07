@@ -229,6 +229,57 @@ function PermissionsPage() {
     return n.children?.some(matchesSearch) ?? false;
   };
 
+  const visibleTree = useMemo(
+    () => FUNCTION_TREE.filter(matchesSearch),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [search],
+  );
+  const visibleCodes = useMemo(() => flattenCodes(visibleTree), [visibleTree]);
+
+  const columnState = (a: Action): "all" | "some" | "none" => {
+    if (visibleCodes.length === 0) return "none";
+    const on = visibleCodes.filter((c) => perms[c]?.[a]).length;
+    if (on === 0) return "none";
+    if (on === visibleCodes.length) return "all";
+    return "some";
+  };
+
+  const setColumnPerm = (a: Action, value: boolean) => {
+    setPerms((p) => {
+      const next = { ...p };
+      visibleCodes.forEach((c) => {
+        next[c] = { ...next[c], [a]: value };
+      });
+      return next;
+    });
+  };
+
+  const rowState = (node: FunctionNode): "all" | "some" | "none" => {
+    const codes = [node.code, ...getDescendants(node)];
+    let on = 0;
+    let total = 0;
+    codes.forEach((c) => {
+      ACTIONS.forEach((a) => {
+        total += 1;
+        if (perms[c]?.[a]) on += 1;
+      });
+    });
+    if (on === 0) return "none";
+    if (on === total) return "all";
+    return "some";
+  };
+
+  const setRowPerm = (node: FunctionNode, value: boolean) => {
+    const codes = [node.code, ...getDescendants(node)];
+    setPerms((p) => {
+      const next = { ...p };
+      codes.forEach((c) => {
+        next[c] = { query: value, create: value, update: value, delete: value };
+      });
+      return next;
+    });
+  };
+
   const reset = () => {
     setPerms(initialPerms);
     setDataScope({});
@@ -344,17 +395,44 @@ function PermissionsPage() {
                     <FileText className="h-3.5 w-3.5 text-sky-600" /> Chức năng chi tiết
                   </span>
                 </div>
-                <div className="hidden gap-6 pr-4 text-xs font-medium text-muted-foreground md:flex">
-                  {ACTIONS.map((a) => (
-                    <span key={a} className="w-14 text-center">
-                      {ACTION_LABEL[a]}
-                    </span>
-                  ))}
+                <div className="hidden items-center gap-6 pr-4 text-xs font-medium text-muted-foreground md:flex">
+                  <div className="flex w-14 flex-col items-center gap-1">
+                    <span className="text-[11px] text-muted-foreground/80">Cả dòng</span>
+                    <span className="text-muted-foreground/40">·</span>
+                  </div>
+                  {ACTIONS.map((a) => {
+                    const st = columnState(a);
+                    return (
+                      <div key={a} className="flex w-14 flex-col items-center gap-1">
+                        <span>{ACTION_LABEL[a]}</span>
+                        <button
+                          type="button"
+                          onClick={() => setColumnPerm(a, st !== "all")}
+                          className={cn(
+                            "flex h-5 w-5 items-center justify-center rounded border transition-colors",
+                            st === "all"
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : st === "some"
+                                ? "border-primary bg-primary/20 text-primary"
+                                : "border-input bg-background hover:border-primary/60",
+                          )}
+                          title={`Chọn tất cả cột ${ACTION_LABEL[a]}`}
+                          aria-label={`Chọn tất cả cột ${ACTION_LABEL[a]}`}
+                        >
+                          {st === "all" ? (
+                            <Check className="h-3.5 w-3.5" />
+                          ) : st === "some" ? (
+                            <Minus className="h-3.5 w-3.5" />
+                          ) : null}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               <ul className="divide-y">
-                {FUNCTION_TREE.filter(matchesSearch).map((node) => (
+                {visibleTree.map((node) => (
                   <TreeRow
                     key={node.code}
                     node={node}
@@ -365,6 +443,8 @@ function PermissionsPage() {
                     setPerm={setPerm}
                     setBranchPerm={setBranchPerm}
                     branchState={branchState}
+                    rowState={rowState}
+                    setRowPerm={setRowPerm}
                     matchesSearch={matchesSearch}
                   />
                 ))}
@@ -412,6 +492,8 @@ function TreeRow(props: {
   setPerm: (c: string, a: Action, v: boolean) => void;
   setBranchPerm: (n: FunctionNode, a: Action, v: boolean) => void;
   branchState: (n: FunctionNode, a: Action) => "all" | "some" | "none";
+  rowState: (n: FunctionNode) => "all" | "some" | "none";
+  setRowPerm: (n: FunctionNode, v: boolean) => void;
   matchesSearch: (n: FunctionNode) => boolean;
 }) {
   const {
@@ -423,6 +505,8 @@ function TreeRow(props: {
     setPerm,
     setBranchPerm,
     branchState,
+    rowState,
+    setRowPerm,
     matchesSearch,
   } = props;
   const hasChildren = !!node.children?.length;
@@ -494,6 +578,33 @@ function TreeRow(props: {
 
         {/* Actions */}
         <div className="flex items-center gap-6 pr-4">
+          {(() => {
+            const rst = rowState(node);
+            return (
+              <div className="flex w-14 items-center justify-center border-r pr-3">
+                <button
+                  type="button"
+                  onClick={() => setRowPerm(node, rst !== "all")}
+                  className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded border transition-colors",
+                    rst === "all"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : rst === "some"
+                        ? "border-primary bg-primary/20 text-primary"
+                        : "border-input bg-background hover:border-primary/60",
+                  )}
+                  title={`Chọn tất cả quyền cho ${node.name}`}
+                  aria-label={`Chọn tất cả quyền cho ${node.name}`}
+                >
+                  {rst === "all" ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : rst === "some" ? (
+                    <Minus className="h-3.5 w-3.5" />
+                  ) : null}
+                </button>
+              </div>
+            );
+          })()}
           {ACTIONS.map((a) => {
             if (isGroup) {
               const st = branchState(node, a);
