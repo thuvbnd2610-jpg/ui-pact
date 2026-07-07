@@ -280,6 +280,32 @@ function PermissionsPage() {
     });
   };
 
+  const allState = (): "all" | "some" | "none" => {
+    const allCodes = flattenCodes(FUNCTION_TREE);
+    let on = 0;
+    let total = 0;
+    allCodes.forEach((c) => {
+      ACTIONS.forEach((a) => {
+        total += 1;
+        if (perms[c]?.[a]) on += 1;
+      });
+    });
+    if (on === 0) return "none";
+    if (on === total) return "all";
+    return "some";
+  };
+
+  const setAllPerm = (value: boolean) => {
+    const allCodes = flattenCodes(FUNCTION_TREE);
+    setPerms((p) => {
+      const next = { ...p };
+      allCodes.forEach((c) => {
+        next[c] = { query: value, create: value, update: value, delete: value };
+      });
+      return next;
+    });
+  };
+
   const reset = () => {
     setPerms(initialPerms);
     setDataScope({});
